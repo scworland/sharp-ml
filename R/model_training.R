@@ -36,14 +36,13 @@ cv_metrics <- resampled_fits %>%
 cv_predictions <- resampled_fits %>% 
   map_dfr(~map(.x, ~.x$cv_predictions))
 
-# saveRDS(cv_predictions,'r_objects/production/cv_predictions')
-# cv_predictions <- readRDS('r_objects/production/cv_predictions')
-
 # model parameters
 model_parameters <- resampled_fits %>% 
   map(~map(.x, ~.x$model_params))
 
 # plot cross validation predictions
+cv_predictions %>%
+  plot_predictions()
 
 # calculate model weights for ensemble
 model_weights <- calculate_model_weights(cv_predictions,save=TRUE)
