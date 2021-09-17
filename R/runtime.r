@@ -16,14 +16,3 @@ grid_predictions <-load_data() %>%
 # plot heatmap of predictions
 grid_predictions %>%
   plot_heatmap(s)
-
-
-
-    
-    
-
-
-
-
-
-
