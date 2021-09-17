@@ -421,7 +421,7 @@ calculate_model_weights <- function(cv_predictions,save=TRUE){
 plot_predictions <- function(cv_predictions) {
   
   cv_predictions %>%
-    group_by(geometry,bucket) %>%
+    group_by(geometry,bucket,model_id) %>%
     summarize(med_actual = mean(k),
               med_estimate = mean(k_est),
               .groups='drop') %>%
@@ -431,7 +431,7 @@ plot_predictions <- function(cv_predictions) {
                  names_prefix='med_') %>%
     left_join(
       cv_predictions %>%
-        group_by(geometry,bucket) %>%
+        group_by(geometry,bucket,model_id) %>%
         summarize(sd_actual = sd(k),
                   sd_estimate = sd(k_est),
                   .groups='drop') %>%
@@ -439,9 +439,19 @@ plot_predictions <- function(cv_predictions) {
                      values_to='sd',
                      names_to='type',
                      names_prefix='sd_'),
-      by=c('geometry','bucket','type')
+      by=c('geometry','bucket','type','model_id')
     ) %>%
-    mutate(geometry = ifelse(geometry=='Slab1','Planar',geometry))
+    mutate(geometry = ifelse(geometry=='Slab1','Planar slab',geometry)) %>%
+    ggplot() +
+    geom_bar(aes(x=bucket,y=med,fill=type),
+             stat='identity',position=position_dodge(), color='black') +
+    facet_grid(model_id~geometry) +
+    scale_fill_manual(values=c('#F7F7F7','#B31B1B'), labels=c('SHARP','SHARP-ML')) +
+    geom_errorbar(aes(x=bucket,ymin=med-0.5*sd, ymax=med+0.5*sd, 
+                      group=type), 
+                  width=0.2,position=position_dodge(0.9)) +
+    labs(y = expression(kappa), fill = '', 
+         x=expression('Islet Size Group ('*mu*'m)')) +
+    theme_minimal(base_size=14)
 }
-
 
