@@ -7,6 +7,24 @@ tidymodels_prefer()
 conflicted::conflict_prefer("flatten", "purrr")
 conflicted::conflict_prefer("max_rules", "rules")
 
+#' Loads csv data for grid plot
+#' @param none
+load_data <- function(){
+  
+  annulus <- read_csv('input_data/AnnulusData_7Jul21.csv')
+  cylinder <- read_csv('input_data/CylinderData.csv')
+  slab <- read_csv('input_data/Slab1Data.csv')
+  cylinder_new <- read_csv('input_data/CylinderData_3Sep21.csv')
+  slab_new <- read_csv('input_data/Slab1Data_3Sep21.csv')
+  all_geoms_new <- read_csv('input_data/IsletData_9Sep21.csv')
+  
+  model_data <- bind_rows(annulus,cylinder,cylinder_new,slab,slab_new,all_geoms_new) %>%
+    rename_all(tolower) %>%
+    mutate(diameter = diameter*1e6,
+           bucket = diameter_bucket(diameter),
+           tau = ifelse(geometry == 'Annulus', tau*2, tau))
+}
+
 #' create prediction set
 #' @param geometry string: geometry of device
 #' @param rho double: rho for prediction
