@@ -7,24 +7,6 @@ tidymodels_prefer()
 conflicted::conflict_prefer("flatten", "purrr")
 conflicted::conflict_prefer("max_rules", "rules")
 
-#' Loads csv data for grid plot
-#' @param none
-load_data <- function(){
-  
-  annulus <- read_csv('input_data/AnnulusData_7Jul21.csv')
-  cylinder <- read_csv('input_data/CylinderData.csv')
-  slab <- read_csv('input_data/Slab1Data.csv')
-  cylinder_new <- read_csv('input_data/CylinderData_3Sep21.csv')
-  slab_new <- read_csv('input_data/Slab1Data_3Sep21.csv')
-  all_geoms_new <- read_csv('input_data/IsletData_9Sep21.csv')
-  
-  model_data <- bind_rows(annulus,cylinder,cylinder_new,slab,slab_new,all_geoms_new) %>%
-    rename_all(tolower) %>%
-    mutate(diameter = diameter*1e6,
-           bucket = diameter_bucket(diameter),
-           tau = ifelse(geometry == 'Annulus', tau*2, tau))
-}
-
 #' create prediction set
 #' @param geometry string: geometry of device
 #' @param rho double: rho for prediction
@@ -87,6 +69,12 @@ make_predictions <- function(geometry,rho,tau,ensemble=TRUE){
   # load model weights
   model_weights <- readRDS('r_objects/production/model_weights')
   
+  geometry_medians <- model_weights %>%
+    mutate(rho_median = parse_number(rho_bucket),
+           tau_median = parse_number(tau_bucket)) %>%
+    distinct(geometry, rho_median, tau_median)
+  
+  
   model_prediction <- list()
   for(i in 1:length(models)){
     model_prediction[[i]] <- prediction_data %>%
@@ -98,19 +86,20 @@ make_predictions <- function(geometry,rho,tau,ensemble=TRUE){
   
   if(ensemble){
     model_predictions <- bind_rows(model_prediction) %>%
-      group_by(geometry) %>%
-      mutate(tau_bucket = ifelse(tau <= median(tau),glue('tau <= {median(tau)}'),glue('tau > {median(tau)}')),
-             rho_bucket = ifelse(rho <= median(rho),glue('tau <= {median(rho)}'),glue('tau > {median(rho)}'))) %>%
-      ungroup() %>%
+      left_join(geometry_medians, by='geometry') %>%
+      mutate(tau_bucket = ifelse(tau <= tau_median,glue('tau <= {tau_median}'),glue('tau > {tau_median}')),
+             rho_bucket = ifelse(rho <= rho_median,glue('rho <= {rho_median}'),glue('rho > {rho_median}'))) %>%
       left_join(model_weights, 
                 by = c('geometry','bucket','model_id','tau_bucket','rho_bucket')) %>%
       group_by(geometry,bucket,tau,rho) %>%
       mutate(w = r2/sum(r2)) %>%
       summarize(s_mu = round(sum(s_est*w),4),
+                s_sigma = round(sum(w*(s_est - s_mu)^2),4),
                 k_mu = round(sum(k_est*w),4),
                 k_sigma = round(sum(w*(k_est - k_mu)^2),4),
                 .groups='drop') %>%
       mutate(s_mu = ifelse(s_mu > 1, 1, s_mu),
+             k_sigma = ifelse(k_sigma > 0.75*k_mu, 0.75*k_mu, k_sigma),
              kieq = c(NA, 0.167,0.667,1.685,3.5,6.315,10.352,15.833)) 
   }else{
     model_predictions <- bind_rows(model_prediction)
@@ -154,7 +143,10 @@ predict_over_grid <- function(raw_data, n=15){
   grid_predictions <- expanded_grids %>%
     pmap_dfr(make_predictions) %>% 
     group_by(geometry,rho,tau) %>%
-    summarize(s=mean(s_mu), 
+    summarize(s_mu = mean(s_mu), 
+              s_sigma = mean(s_sigma),
+              k_mu = mean(k_mu),
+              k_sigma = mean(k_sigma),
               .groups='drop')
   
   

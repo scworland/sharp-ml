@@ -10,7 +10,7 @@ tau = 1.3
 make_predictions(geometry,rho,tau,ensemble=TRUE)
 
 # predict over grid of parameters
-grid_predictions <-load_data() %>%
+grid_predictions <- load_data() %>%
   predict_over_grid(n=15)
 
 # plot heatmap of predictions

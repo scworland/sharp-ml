@@ -113,7 +113,6 @@ format_data <- function(raw_data) {
 #' build workflow set of models
 #' @param model_rec recipe: preprocessing steps
 build_workflow_set <- function(model_rec){
-  ## model specifications ----
   
   # linear model spec
   lm_spec <- 
@@ -403,7 +402,7 @@ calculate_model_weights <- function(cv_predictions,save=TRUE){
   model_weights <- cv_predictions %>%
     group_by(geometry) %>%
     mutate(tau_bucket = ifelse(tau <= median(tau),glue('tau <= {median(tau)}'),glue('tau > {median(tau)}')),
-           rho_bucket = ifelse(rho <= median(rho),glue('tau <= {median(rho)}'),glue('tau > {median(rho)}'))) %>%
+           rho_bucket = ifelse(rho <= median(rho),glue('rho <= {median(rho)}'),glue('rho > {median(rho)}'))) %>%
     ungroup() %>%
     group_by(model_id,geometry,bucket,rho_bucket,tau_bucket) %>%
     summarize(r2 = abs(cor(s,s_est)),
@@ -454,4 +453,5 @@ plot_predictions <- function(cv_predictions) {
          x=expression('Islet Size Group ('*mu*'m)')) +
     theme_minimal(base_size=14)
 }
+
 

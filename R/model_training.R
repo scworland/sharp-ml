@@ -4,7 +4,7 @@
 source('production_scripts/training_utils.r')
 
 # register cores for parallel processing
-registerDoMC(cores = 6)
+registerDoMC(cores = 4)
 
 # load data
 raw_data <- load_data() 
