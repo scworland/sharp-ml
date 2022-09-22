@@ -1,7 +1,7 @@
 ## Setup ----
 
 # source utility functions
-source('production_scripts/training_utils.r')
+source('training_utils.r')
 
 # register cores for parallel processing
 registerDoMC(cores = 4)

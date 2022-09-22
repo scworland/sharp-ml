@@ -1,5 +1,5 @@
 
-source('production_scripts/runtime_utils.r')
+source('runtime_utils.r')
 
 # parameters
 geometry = 'Cylinder'
