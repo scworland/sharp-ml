@@ -1,0 +1,27 @@
+### Description
+
+This app presents islet size-to-IEQ conversion factors ($\kappa_{IEQ}$) compared to conversion factors adjusted for expected oxygen-constrained functional capacity ($\kappa_{fIEQ}$) for **human islets** in extravascular encapsulation devices given the device geometry and volumetric islet density.
+
+
+Insulin release in pancreatic islets is dependent on the amount of oxygen available to the islets’ constituent insulin-secreting β-cells. Unlike native islets which are thoroughly suffused with the host’s vascular system, those in encapsulation devicestransplanted in extravascular sites depend on oxygen supply by slow, passive diffusion from the host site, where oxygen is not available in abundant levels. As a result, the insulin secretion capacity (i.e., function) of the encapsulated islets is reduced relative to their maximum (fully oxygenated) potential. In addition to the level of oxygen in the surrounding tissue of the transplantation site, the oxygenation and by extension function of an individual encapsulated islet is dependent on (1) its size, (2) its distance from the transplantation site, and (3) its proximity to other islets with which it must compete for oxygen.The standard method for measuring the total islet volume in an isolation or device is to count the number of islets in size groups with a bin width of 50 $\mu m$ and convert to volume, using the unit “islet equivalents (IEQ)” based on the [conventional definition](https://pubmed.ncbi.nlm.nih.gov/1679542/) that the volume of an islet with a diameter of 150 $\mu m$  is equal to 1 IEQ .Because of oxygen limitations, the equivalent volume of functional islets may be significantly lower than the total physical volume of islet tissue, according to the device geometry and islet density. Moreover, larger islets are more oxygen-constrained than smaller ones because of the larger diffusion path required to reach the centrally located cells, thus the resultant relative loss of function is concentrated in the larger islets. Given device geometry information and volumetric islet density in the cell-containing domain, this program calculates IEQ conversion factors adjusted for expected relative function ($\kappa_{fIEQ}$) for **human islets** of the conventional size groups of 50 $\mu m$  bins
+
+### Input parameters
+
+This model considers three typical geometries of islet delivery devices: (1) the **planar slab**, where $\tau$ represents the thickness, (2) the **cylinder**, where $\tau$ represents the diameter, and (3) the **concentric cylinder**, with a passive core of diameter $\tau$ and a fixed hydrogel thickness of 500 $\mu m$  For all geometries, $\rho$ represents the islet density as a volumetric percentage of the device (or in the case of the concentric cylinder design, just the outer cell-containing layer). The following ranges are recommended for the parameters:
+
+
+- For all geometries, $0 \lt \rho \leq 20\%$ is recommended. Inputs overrange mayproduce spurious results.
+- For the **planar slab** and **cylinder** geometries, $0.5 mm \leq \tau \leq 1.5 mm$ is recommended. Values under- or overrange may produce spurious results.
+- For the **concentric cylinder** geometries, $1~mm \leq \tau \leq 5~mm$ is recommended. Values under-range may be approximated by selecting the **Cylinder** geometry, with $\tau = 1~mm$. Values overrange may be approximated by selecting the **Planar slab** geometry, with $\tau = 1~mm$.
+
+
+### Model Information
+
+The underlying computation is performed by an ensemble machine learning model which was previously fit to data collected from a mass transfer model of oxygen transport in islet encapsulation devices, solved using stochastic finite element analysis . The following critical assumptions were made regarding oxygen transport:
+
+- The partial pressure of oxygen at the surface of the device (i.e., the device-host interface) is constant at 40 mmHg.
+- The encapsulated islets are from the human cadaveric source and are assumed to be stimulated with glucose, with a resultant maximum oxygen consumption rate (OCR) of 200 nmol O2 min-1 mg DNA-1.
+- Insulin secretion in the islets is reduced at pO2 levels $\leq$ ~5 mmHg (half-maximal at 2 mmHg).
+
+A comprehensive explanation of the physical and machine learning model development is given in (paper link).
+

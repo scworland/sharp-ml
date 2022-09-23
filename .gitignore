@@ -4,3 +4,6 @@
 .Ruserdata
 .Rproj
 .DS_Store
+app/credentials/
+app/rsconnect/
+app/runtime.R
