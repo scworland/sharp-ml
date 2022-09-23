@@ -21,8 +21,8 @@ conflicted::conflict_prefer("max_rules", "rules")
 define_credentials <- function(){
   
   credentials <- data.frame(
-    user = c("aernst", "sworland","guest"), # mandatory
-    password =  c("riley robb","riley robb","sharp-ml"), # mandatory
+    user = c(), # mandatory
+    password =  c(), # mandatory
     admin = c(FALSE, TRUE, FALSE),
     comment = "Simple and secure authentification mechanism 
   for single ‘Shiny’ applications.",
